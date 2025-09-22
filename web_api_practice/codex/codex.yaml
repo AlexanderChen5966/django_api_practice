@@ -1,0 +1,30 @@
+project: web_api_practice
+description: Django + DRF + drf-spectacular — 模式A（Domain app + 多 adapters）串接 OWM/CWA。
+phases:
+  - name: Phase 1 - Setup & Skeleton
+    tasks:
+      - tasks/01-setup-and-skeleton.md
+  - name: Phase 2 - Schemas & Serializers
+    tasks:
+      - tasks/02-schemas-and-serializers.md
+  - name: Phase 3 - Adapters (OWM/CWA)
+    tasks:
+      - tasks/03-adapters-owm-cwa.md
+  - name: Phase 4 - Service/Cache/Fallback
+    tasks:
+      - tasks/04-service-cache-fallback.md
+  - name: Phase 5 - Views/URLs/Swagger
+    tasks:
+      - tasks/05-views-urls-swagger.md
+  - name: Phase 6 - Tests & Ops
+    tasks:
+      - tasks/06-tests-and-ops.md
+artifacts:
+  - path: apps/
+  - path: web_api_practice/
+  - path: requirements.txt
+  - path: .env.example
+verify:
+  - cmd: python -m pytest -q
+  - cmd: python manage.py check
+  - cmd: python manage.py showmigrations
