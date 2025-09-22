@@ -10,13 +10,13 @@ from django.conf import settings
 from .base import BaseWeatherAdapter
 from ...common.http import get as http_get
 from ...common.utils import to_iso_utc
-from ..schemas import Forecast, Period
+from ..schemas import Forecast, OWMPeriod
 
 
 class OpenWeatherAdapter(BaseWeatherAdapter):
     """Fetch and normalize forecast data from OpenWeatherMap."""
 
-    BASE_URL = "https://api.openweathermap.org/data/3.0/forecast"
+    BASE_URL = "https://api.openweathermap.org/data/2.5/forecast"
 
     async def fetch_forecast(
         self,
@@ -41,7 +41,7 @@ class OpenWeatherAdapter(BaseWeatherAdapter):
         location_name = city_info.get("name") or city
         country_code = city_info.get("country") or country
 
-        periods: List[Period] = []
+        periods: List[OWMPeriod] = []
         for entry in payload.get("list", []):
             period = self._build_period(entry)
             if period:
@@ -56,7 +56,7 @@ class OpenWeatherAdapter(BaseWeatherAdapter):
         )
 
     @staticmethod
-    def _build_period(entry: Dict[str, Any]) -> Period | None:
+    def _build_period(entry: Dict[str, Any]) -> OWMPeriod | None:
         main = entry.get("main") or {}
         weather_items = entry.get("weather") or []
         wind = entry.get("wind") or {}
@@ -74,11 +74,10 @@ class OpenWeatherAdapter(BaseWeatherAdapter):
 
         wind_kph = float(speed) * 3.6 if isinstance(speed, (int, float)) else None
 
-        return Period(
+        return OWMPeriod(
             ts=ts_iso,
             temp=float(temp),
             desc=description,
             humidity=int(humidity) if isinstance(humidity, (int, float)) else None,
             wind_kph=wind_kph,
         )
-

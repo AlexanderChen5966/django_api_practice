@@ -10,7 +10,7 @@ from django.conf import settings
 from .base import BaseWeatherAdapter
 from ...common.http import get as http_get
 from ...common.utils import to_iso_utc
-from ..schemas import Forecast, Period
+from ..schemas import Forecast, CWAPeriod
 
 
 class Cwa36hAdapter(BaseWeatherAdapter):
@@ -52,18 +52,20 @@ class Cwa36hAdapter(BaseWeatherAdapter):
             for element in location.get("weatherElement", [])
         }
 
-        wx_times = elements.get("Wx", [])
-        temp_times = elements.get("T", [])
-        humidity_times = elements.get("RH", [])
-        wind_times = elements.get("WS", [])
+        wx_elements = elements.get("Wx", [])
+        pop_elements = elements.get("PoP", [])
+        minT_elements = elements.get("MinT", [])
+        mxaT_elements = elements.get("MaxT", [])
+        ci_elements = elements.get("CI", [])
 
-        periods: List[Period] = []
-        for idx, wx_entry in enumerate(wx_times):
-            temp_entry = temp_times[idx] if idx < len(temp_times) else None
-            humidity_entry = humidity_times[idx] if idx < len(humidity_times) else None
-            wind_entry = wind_times[idx] if idx < len(wind_times) else None
+        periods: List[CWAPeriod] = []
+        for idx, wx_entry in enumerate(wx_elements):
+            pop_entry = pop_elements[idx] if idx < len(pop_elements) else None
+            minT_entry = minT_elements[idx] if idx < len(mxaT_elements) else None
+            maxT_entry = mxaT_elements[idx] if idx < len(mxaT_elements) else None
+            ci_entry = ci_elements[idx] if idx < len(ci_elements) else None
 
-            period = self._build_period(wx_entry, temp_entry, humidity_entry, wind_entry)
+            period = self._build_period(wx_entry, pop_entry, minT_entry, maxT_entry,ci_entry)
             if period:
                 periods.append(period)
 
@@ -78,60 +80,74 @@ class Cwa36hAdapter(BaseWeatherAdapter):
     @staticmethod
     def _build_period(
         wx_entry: Dict[str, Any],
-        temp_entry: Dict[str, Any] | None,
-        humidity_entry: Dict[str, Any] | None,
-        wind_entry: Dict[str, Any] | None,
-    ) -> Period | None:
+        pop_entry: Dict[str, Any] | None,
+        minT_entry: Dict[str, Any] | None,
+        maxT_entry: Dict[str, Any] | None,
+        ci_entry: Dict[str, Any] | None,
+
+    ) -> CWAPeriod | None:
         description = (wx_entry.get("parameter") or {}).get("parameterName")
         if not description:
             return None
 
-        temp_value = None
-        if temp_entry:
-            temp_value = (temp_entry.get("parameter") or {}).get("parameterName")
+        pop_value = None
+        if pop_entry:
+            pop_value = (pop_entry.get("parameter") or {}).get("parameterName")
 
-        if temp_value is None:
+        if pop_value is None:
             return None
 
-        humidity_value = None
-        if humidity_entry:
-            humidity_value = (humidity_entry.get("parameter") or {}).get("parameterName")
+        minT_value = None
+        if minT_entry:
+            minT_value = (minT_entry.get("parameter") or {}).get("parameterName")
 
-        wind_value = None
-        if wind_entry:
-            wind_value = (wind_entry.get("parameter") or {}).get("parameterName")
+        maxT_value = None
+        if maxT_entry:
+            maxT_value = (maxT_entry.get("parameter") or {}).get("parameterName")
+
+        ci_value = None
+        if ci_entry:
+            ci_value = (ci_entry.get("parameter") or {}).get("parameterName")
 
         start_time = (
             wx_entry.get("startTime")
             or wx_entry.get("dataTime")
-            or (temp_entry or {}).get("startTime")
+            or (pop_entry or {}).get("startTime")
             or ""
         )
 
-        try:
-            temp_float = float(temp_value)
-        except (TypeError, ValueError):
-            return None
+        # try:
+        #     pop_str = float(pop_value)
+        #
+        # except (TypeError, ValueError):
+        #     return None
+        #
+        # minT_int = None
+        # try:
+        #     if minT_value is not None:
+        #         minT_int = int(minT_value)
+        # except (TypeError, ValueError):
+        #     minT_int = None
+        #
+        # wind_kph = None
+        # try:
+        #     if maxT_value is not None:
+        #         maxT_int = int(float(maxT_value))
+        # except (TypeError, ValueError):
+        #     maxT_int = None
+        #
+        # try:
+        #     if ci_value is not None:
+        #         maxT_int = int(float(ci_value))
+        # except (TypeError, ValueError):
+        #     maxT_int = None
 
-        humidity_int = None
-        try:
-            if humidity_value is not None:
-                humidity_int = int(float(humidity_value))
-        except (TypeError, ValueError):
-            humidity_int = None
-
-        wind_kph = None
-        try:
-            if wind_value is not None:
-                wind_kph = float(wind_value) * 3.6
-        except (TypeError, ValueError):
-            wind_kph = None
-
-        return Period(
+        return CWAPeriod(
             ts=to_iso_utc(start_time),
-            temp=temp_float,
             desc=description,
-            humidity=humidity_int,
-            wind_kph=wind_kph,
+            pop=pop_value,
+            minT=minT_value,
+            maxT=maxT_value,
+            ci= ci_value
         )
 

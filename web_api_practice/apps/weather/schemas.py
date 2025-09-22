@@ -3,12 +3,20 @@ from typing import List, Optional
 
 
 @dataclass
-class Period:
+class OWMPeriod:
     ts: str  # ISO8601 UTC timestamp
     temp: float
     desc: str
     humidity: Optional[int] = None
     wind_kph: Optional[float] = None
+
+class CWAPeriod:
+    ts: str  # ISO8601 UTC timestamp
+    desc: str
+    pop: str
+    minT: str
+    maxT: str
+    ci: str
 
 
 @dataclass
@@ -17,4 +25,4 @@ class Forecast:
     country: str
     units: str  # "metric" | "imperial"
     source: str  # "owm" | "cwa"
-    periods: List[Period]
+    periods: List[OWMPeriod]
