@@ -4,6 +4,7 @@ import pytest
 
 from apps.weather.adapters.cwa36h import Cwa36hAdapter
 from apps.weather.adapters.openweather import OpenWeatherAdapter
+from apps.weather.schemas import CWAPeriod, OWMPeriod
 
 
 class DummyResponse:
@@ -42,6 +43,7 @@ async def test_openweather_adapter_normalizes_payload(monkeypatch):
 
     assert forecast.source == "owm"
     assert forecast.location_name == "Taipei"
+    assert isinstance(forecast.periods[0], OWMPeriod)
     assert forecast.periods[0].desc == "few clouds"
     assert forecast.periods[0].wind_kph == pytest.approx(7.2)
 
@@ -116,7 +118,11 @@ async def test_cwa_adapter_maps_elements(monkeypatch):
 
     assert forecast.source == "cwa"
     assert forecast.location_name == "臺北市"
-    assert forecast.periods[0].desc == "陰短暫陣雨或雷雨"
-    assert forecast.periods[0].humidity == 60
-    assert forecast.periods[0].wind_kph is None
-    assert forecast.periods[0].temp == pytest.approx(29.0)
+    first_period = forecast.periods[0]
+    assert isinstance(first_period, CWAPeriod)
+    assert first_period.desc == "陰短暫陣雨或雷雨"
+    assert first_period.pop == 60
+    assert first_period.min_temp == pytest.approx(28.0)
+    assert first_period.max_temp == pytest.approx(30.0)
+    assert first_period.avg_temp == pytest.approx(29.0)
+    assert first_period.comfort == "悶熱"

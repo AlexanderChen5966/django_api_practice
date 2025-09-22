@@ -5,7 +5,7 @@ import pytest
 from django.core.cache import cache
 from django.test.utils import override_settings
 
-from apps.weather.schemas import Forecast, Period
+from apps.weather.schemas import Forecast, OWMPeriod
 from apps.weather.services import WeatherService
 
 
@@ -24,7 +24,7 @@ async def test_service_caches_primary_provider(monkeypatch):
         units="metric",
         source="owm",
         periods=[
-            Period(
+            OWMPeriod(
                 ts="2025-09-22T00:00:00+00:00",
                 temp=24.5,
                 desc="clear",
@@ -66,7 +66,7 @@ async def test_service_fallbacks_to_secondary_provider(monkeypatch):
         units="metric",
         source="owm",
         periods=[
-            Period(
+            OWMPeriod(
                 ts="2025-09-22T03:00:00+00:00",
                 temp=25.0,
                 desc="scattered clouds",

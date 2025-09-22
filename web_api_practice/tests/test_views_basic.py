@@ -2,7 +2,7 @@
 
 import pytest
 
-from apps.weather.schemas import Forecast, Period
+from apps.weather.schemas import Forecast, OWMPeriod
 
 
 @pytest.mark.django_db
@@ -25,7 +25,7 @@ def test_forecast_endpoint_returns_normalized_payload(client, monkeypatch):
                 units="metric",
                 source="owm",
                 periods=[
-                    Period(
+                    OWMPeriod(
                         ts="2025-09-22T00:00:00+00:00",
                         temp=24.0,
                         desc="clear sky",
