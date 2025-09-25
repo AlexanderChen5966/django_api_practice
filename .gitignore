@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Environment
-.env
+web_api_practice/.env
 .venv/
 
 # Django

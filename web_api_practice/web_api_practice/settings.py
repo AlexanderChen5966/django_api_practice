@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'apps.common',
     'apps.weather',
+    'apps.movies',
 ]
 
 MIDDLEWARE = [
