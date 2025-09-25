@@ -25,9 +25,15 @@ ENV = {
     "HTTP_DEFAULT_TIMEOUT": float(os.getenv("HTTP_DEFAULT_TIMEOUT", 8.0)),
     "HTTP_MAX_RETRIES": int(os.getenv("HTTP_MAX_RETRIES", 2)),
     "REDIS_URL": os.getenv("REDIS_URL", "redis://localhost:6379/0"),
+    "TMDB_API_KEY": os.getenv("TMDB_API_KEY", ""),
+    "OMDB_API_KEY": os.getenv("OMDB_API_KEY", ""),
+    "TMDB_IMAGE_BASE": os.getenv("TMDB_IMAGE_BASE", "https://image.tmdb.org/t/p/w500"),
 }
 HTTP_DEFAULT_TIMEOUT = ENV["HTTP_DEFAULT_TIMEOUT"]
 HTTP_MAX_RETRIES = ENV["HTTP_MAX_RETRIES"]
+TMDB_API_KEY = ENV["TMDB_API_KEY"]
+OMDB_API_KEY = ENV["OMDB_API_KEY"]
+TMDB_IMAGE_BASE = ENV["TMDB_IMAGE_BASE"]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
